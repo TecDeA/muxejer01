@@ -33,7 +33,7 @@
     <!-- KaTeX for rendering LaTeX formulas accurately -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -729,16 +729,28 @@
             });
         }
 
+        // Helper de renderizado KaTeX. Renderiza las formulas $...$ dentro
+        // del elemento indicado (o todo el body por defecto). Es seguro
+        // llamarlo varias veces: las formulas ya renderizadas no se
+        // reprocesan porque KaTeX sustituye el texto $...$ por HTML.
+        function renderMath(target) {
+            try {
+                if (window.renderMathInElement) {
+                    renderMathInElement(target || document.body);
+                }
+            } catch (e) { console.warn('KaTeX render error:', e); }
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            document.getElementById(`content-${tabId}`).classList.add('active');
+            const content = document.getElementById(`content-${tabId}`);
+            content.classList.add('active');
 
-            if (window.renderMathInElement) {
-                renderMathInElement(document.body);
-            }
+            // Re-renderiza las formulas de la pestana recien mostrada.
+            renderMath(content);
         }
 
         function toggleInput(varName) {
@@ -780,6 +792,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             initTruthTable();
             updateSimulator();
+
+            // KaTeX: el atributo onload= en un <script defer> NO es fiable
+            // (puede dispararse antes de que el script defer se ejecute,
+            //  especialmente al servirse desde el Service Worker cache).
+            // Solucion: polling corto hasta que renderMathInElement exista,
+            // entonces renderizamos todo el body una sola vez.
+            let _mathTries = 0;
+            function tryRenderMath() {
+                if (window.renderMathInElement) {
+                    renderMathInElement(document.body);
+                } else if (_mathTries++ < 60) { // ~3 s max
+                    setTimeout(tryRenderMath, 50);
+                }
+            }
+            tryRenderMath();
         });
     </script>
 
