@@ -1,0 +1,64 @@
+{
+  "name": "Sistemas Combinacionales con MUX",
+  "short_name": "MUX Combinacional",
+  "description": "Tutorial interactivo e instalable sobre implementacion de funciones combinacionales con multiplexores digitales (MUX 16/1, 8/1, arboles de 4/1 y 2 MUX 4/1 + 1 MUX 2/1). Incluye tabla de verdad, diagramas y simulador en tiempo real.",
+  "lang": "es",
+  "dir": "ltr",
+  "id": "/?source=pwa",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Simulador MUX",
+      "short_name": "Simulador",
+      "description": "Abrir directamente el simulador logico en tiempo real",
+      "url": "./?source=pwa#simulador",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tabla de Verdad",
+      "short_name": "Tabla",
+      "description": "Ver la tabla de verdad del ejercicio",
+      "url": "./?source=pwa#tabla",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
