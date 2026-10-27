@@ -7,7 +7,7 @@
  * extrae VERSION con una regexp como fallback.
  * ===================================================================== */
 
-const VERSION = '1.0.1';
+const VERSION = '1.1.1';
 const CACHE_NAME = `mux-combinacional-v${VERSION}`;
 
 /* Recursos del "app shell" propios (mismo origen y scope).
