@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseño de Sistemas Combinacionales con MUX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- KaTeX for rendering LaTeX formulas accurately -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .tab-btn.active {
+            color: #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.15) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
+        }
+        .tab-btn.active .tab-badge {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+            border-color: #38bdf8 !important;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-sky-500/10 border border-sky-500/30 rounded-xl text-sky-400">
+                    <i class="fa-solid fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide">Sistemas Combinacionales con MUX</h1>
+                    <p class="text-xs text-slate-400">Resolución del ejercicio de la Tabla de Verdad dada</p>
+                </div>
+            </div>
+            
+            <a href="https://www.youtube.com/watch?v=2F6XGy2y_aY" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition">
+                <i class="fa-brands fa-youtube text-red-500"></i>
+                Ver vídeo original
+            </a>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="border-t border-slate-800/80 bg-slate-900/95 max-w-7xl mx-auto px-4 py-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                    <button onclick="switchTab('intro')" id="tab-intro" class="tab-btn active flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-house text-sky-400"></i>
+                        <span>Inicio</span>
+                    </button>
+
+                    <button onclick="switchTab('tabla')" id="tab-tabla" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <span class="tab-badge w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-slate-400">1</span>
+                        <span>Tabla de Verdad</span>
+                    </button>
+
+                    <button onclick="switchTab('mux16')" id="tab-mux16" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <span class="tab-badge w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-slate-400">a</span>
+                        <span>MUX 16/1</span>
+                    </button>
+
+                    <button onclick="switchTab('mux8')" id="tab-mux8" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <span class="tab-badge w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-slate-400">b</span>
+                        <span>MUX 8/1</span>
+                    </button>
+
+                    <button onclick="switchTab('mux4')" id="tab-mux4" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <span class="tab-badge w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-slate-400">c</span>
+                        <span>Árbol MUXs 4/1</span>
+                    </button>
+
+                    <button onclick="switchTab('mux2x4')" id="tab-mux2x4" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-xl font-semibold border border-transparent text-slate-300 hover:text-sky-300 hover:bg-slate-800 transition">
+                        <span class="tab-badge w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[11px] font-bold text-slate-400">d</span>
+                        <span>2 MUX 4/1 + 1 MUX 2/1</span>
+                    </button>
+                </div>
+
+                <button onclick="switchTab('simulador')" id="tab-simulador" class="tab-btn flex items-center gap-2 px-3.5 py-2 rounded-xl font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 transition text-xs sm:text-sm">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Simulador</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
+
+        <!-- TAB: INICIO & INTRODUCCIÓN -->
+        <section id="content-intro" class="tab-content active space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+                <div class="max-w-3xl space-y-4">
+                    <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-sky-400 bg-sky-500/10 border border-sky-500/20 rounded-full">Ejercicio resuelto según apuntes</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Implementación de la función $F(A,B,C,D)$</h2>
+                    <p class="text-slate-300 leading-relaxed">
+                        En este tutorial interactivo explicamos y representamos los diagramas exactos de tu hoja de ejercicios para la función combinacional definida por su Tabla de Verdad (incluyendo condiciones de indiferencia o "Don't Care" $X$).
+                    </p>
+                    <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl text-center">
+                        <span class="text-lg sm:text-xl font-mono text-sky-400 font-bold">$F(A, B, C, D)$ con mintérminos activos ($1$) y no definidos ($X$)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                    <div class="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                        <div class="text-sky-400 font-bold flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-xs">a</span>
+                            <span>MUX 16/1</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Implementación directa mediante las 4 variables $A, B, C, D$ conectadas a las líneas de selección.</p>
+                    </div>
+
+                    <div class="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                        <div class="text-sky-400 font-bold flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-xs">b</span>
+                            <span>MUX 8/1</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Uso de 3 variables de selección ($A, B, C$) e inyección de la variable residual $D$ ($1, 0, D, \bar{D}$) en las entradas.</p>
+                    </div>
+
+                    <div class="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                        <div class="text-sky-400 font-bold flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-xs">c</span>
+                            <span>Árbol de MUXs 4/1</span>
+                        </div>
+                        <p class="text-xs text-slate-400">4 MUXs 4/1 de primer nivel controlados por $(C,D)$ y un MUX 4/1 de segundo nivel controlado por $(A,B)$.</p>
+                    </div>
+
+                    <div class="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
+                        <div class="text-sky-400 font-bold flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-xs">d</span>
+                            <span>2 MUX 4/1 + 1 MUX 2/1</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Bloque superior para $A=0$ y bloque inferior para $A=1$ controlados por $(B,C)$, multiplexados al final por $A$.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: TABLA DE VERDAD -->
+        <section id="content-tabla" class="tab-content space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-white mb-2">Tabla de Verdad del Ejercicio</h2>
+                <p class="text-sm text-slate-400 mb-6">Valores exactos copiados de tus apuntes a mano, incluyendo estados de indiferencia ($X$).</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Mintérmino</th>
+                                <th class="p-3">$A$</th>
+                                <th class="p-3">$B$</th>
+                                <th class="p-3">$C$</th>
+                                <th class="p-3">$D$</th>
+                                <th class="p-3 text-sky-400">Salida ($F$)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/50 font-mono" id="truth-table-body">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: MUX 16:1 -->
+        <section id="content-mux16" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <h2 class="text-xl font-bold text-white">a) Implementación con MUX 16/1</h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Conectamos las 4 variables del sistema <strong>$A, B, C, D$</strong> directamente a las patillas de control del multiplexor. 
+                    </p>
+                    <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2 text-xs text-slate-300">
+                        <p><strong class="text-sky-400">Variables de Selección:</strong> $S_3 = A$, $S_2 = B$, $S_1 = C$, $S_0 = D$.</p>
+                        <p><strong class="text-sky-400">Entradas de Datos ($I_0$ a $I_{15}$):</strong> Se copia el valor directo de la columna $F$ para cada combinación de la Tabla de Verdad.</p>
+                    </div>
+                </div>
+
+                <!-- SVG Diagram MUX 16/1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center">
+                    <svg viewBox="0 0 520 450" class="w-full max-w-lg h-auto">
+                        <!-- MUX Box -->
+                        <rect x="180" y="20" width="180" height="340" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="3"/>
+                        <text x="270" y="50" fill="#38bdf8" font-weight="bold" font-size="18" text-anchor="middle">16 / 1</text>
+                        
+                        <!-- Inputs I0 - I15 -->
+                        <g font-size="10" font-family="monospace">
+                            <text x="172" y="73" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="89" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="105" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="121" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="137" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="153" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="169" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="185" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="201" fill="#f59e0b" text-anchor="end">X</text>
+                            <text x="172" y="217" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="233" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="249" fill="#f59e0b" text-anchor="end">X</text>
+                            <text x="172" y="265" fill="#34d399" text-anchor="end">1</text>
+                            <text x="172" y="281" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="297" fill="#64748b" text-anchor="end">0</text>
+                            <text x="172" y="313" fill="#34d399" text-anchor="end">1</text>
+                        </g>
+
+                        <!-- Connector Lines -->
+                        <path d="
+                            M 175 70 H 180 M 175 86 H 180 M 175 102 H 180 M 175 118 H 180
+                            M 175 134 H 180 M 175 150 H 180 M 175 166 H 180 M 175 182 H 180
+                            M 175 198 H 180 M 175 214 H 180 M 175 230 H 180 M 175 246 H 180
+                            M 175 262 H 180 M 175 278 H 180 M 175 294 H 180 M 175 310 H 180
+                        " stroke="#38bdf8" stroke-width="2"/>
+
+                        <!-- Output F -->
+                        <line x1="360" y1="190" x2="440" y2="190" stroke="#38bdf8" stroke-width="3"/>
+                        <circle cx="440" cy="190" r="5" fill="#38bdf8"/>
+                        <text x="455" y="195" fill="#38bdf8" font-weight="bold" font-size="16">F</text>
+
+                        <!-- Controls A B C D -->
+                        <g>
+                            <line x1="210" y1="360" x2="210" y2="395" stroke="#f59e0b" stroke-width="2"/>
+                            <line x1="250" y1="360" x2="250" y2="395" stroke="#f59e0b" stroke-width="2"/>
+                            <line x1="290" y1="360" x2="290" y2="395" stroke="#f59e0b" stroke-width="2"/>
+                            <line x1="330" y1="360" x2="330" y2="395" stroke="#f59e0b" stroke-width="2"/>
+
+                            <text x="210" y="420" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">A</text>
+                            <text x="250" y="420" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">B</text>
+                            <text x="290" y="420" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">C</text>
+                            <text x="330" y="420" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">D</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: MUX 8:1 -->
+        <section id="content-mux8" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <h2 class="text-xl font-bold text-white">b) Implementación con MUX 8/1</h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Se asignan las tres primeras variables <strong>$A, B, C$</strong> como controles del multiplexor. Las parejas de mintérminos para $D=0$ y $D=1$ dictan la señal a aplicar en cada una de las 8 entradas:
+                    </p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-slate-300 bg-slate-950 border border-slate-800 rounded-xl">
+                            <thead class="bg-slate-900 text-sky-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-2.5">Entrada</th>
+                                    <th class="p-2.5">Valores $F(D=0, D=1)$</th>
+                                    <th class="p-2.5">Valor Inyectado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono">
+                                <tr><td class="p-2 font-bold text-amber-400">0 ($ABC=000$)</td><td class="p-2">$m_0=1, m_1=1$</td><td class="p-2 font-bold text-emerald-400">1</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">1 ($ABC=001$)</td><td class="p-2">$m_2=0, m_3=1$</td><td class="p-2 font-bold text-sky-400">$D$</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">2 ($ABC=010$)</td><td class="p-2">$m_4=1, m_5=0$</td><td class="p-2 font-bold text-sky-400">$\bar{D}$</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">3 ($ABC=011$)</td><td class="p-2">$m_6=0, m_7=0$</td><td class="p-2 font-bold text-slate-500">0</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">4 ($ABC=100$)</td><td class="p-2">$m_8=X, m_9=1$</td><td class="p-2 font-bold text-purple-400">$D / 1$</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">5 ($ABC=101$)</td><td class="p-2">$m_{10}=1, m_{11}=X$</td><td class="p-2 font-bold text-purple-400">$\bar{D} / 1$</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">6 ($ABC=110$)</td><td class="p-2">$m_{12}=1, m_{13}=0$</td><td class="p-2 font-bold text-sky-400">$\bar{D}$</td></tr>
+                                <tr><td class="p-2 font-bold text-amber-400">7 ($ABC=111$)</td><td class="p-2">$m_{14}=0, m_{15}=1$</td><td class="p-2 font-bold text-sky-400">$D$</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SVG Diagram MUX 8/1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center">
+                    <svg viewBox="0 0 520 440" class="w-full max-w-lg h-auto">
+                        <rect x="200" y="30" width="160" height="280" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="3"/>
+                        <text x="280" y="65" fill="#38bdf8" font-weight="bold" font-size="18" text-anchor="middle">8 / 1</text>
+
+                        <!-- Inputs 0 - 7 -->
+                        <g font-size="12" font-weight="bold" font-family="monospace">
+                            <text x="190" y="90" fill="#34d399" text-anchor="end">1</text>
+                            <text x="190" y="120" fill="#38bdf8" text-anchor="end">D</text>
+                            <text x="190" y="150" fill="#38bdf8" text-anchor="end">NOT D</text>
+                            <text x="190" y="180" fill="#64748b" text-anchor="end">0</text>
+                            <text x="190" y="210" fill="#c084fc" text-anchor="end">D / 1</text>
+                            <text x="190" y="240" fill="#c084fc" text-anchor="end">NOT D / 1</text>
+                            <text x="190" y="270" fill="#38bdf8" text-anchor="end">NOT D</text>
+                            <text x="190" y="300" fill="#38bdf8" text-anchor="end">D</text>
+                        </g>
+
+                        <!-- Connector Lines -->
+                        <path d="
+                            M 192 86 H 200 M 192 116 H 200 M 192 146 H 200 M 192 176 H 200
+                            M 192 206 H 200 M 192 236 H 200 M 192 266 H 200 M 192 296 H 200
+                        " stroke="#38bdf8" stroke-width="2"/>
+
+                        <!-- Output F -->
+                        <line x1="360" y1="170" x2="440" y2="170" stroke="#38bdf8" stroke-width="3"/>
+                        <circle cx="440" cy="170" r="5" fill="#38bdf8"/>
+                        <text x="455" y="175" fill="#38bdf8" font-weight="bold" font-size="16">F</text>
+
+                        <!-- Control Lines A, B, C -->
+                        <g>
+                            <line x1="240" y1="310" x2="240" y2="355" stroke="#f59e0b" stroke-width="2"/>
+                            <line x1="280" y1="310" x2="280" y2="355" stroke="#f59e0b" stroke-width="2"/>
+                            <line x1="320" y1="310" x2="320" y2="355" stroke="#f59e0b" stroke-width="2"/>
+
+                            <text x="240" y="380" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">A</text>
+                            <text x="280" y="380" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">B</text>
+                            <text x="320" y="380" fill="#fef08a" font-weight="bold" font-size="16" text-anchor="middle">C</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: MUX 4:1 (ÁRBOL DE MUXS) -->
+        <section id="content-mux4" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <h2 class="text-xl font-bold text-white">c) Implementación con Árbol de MUXs 4/1</h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Tal como aparece en la hoja de ejercicios, se emplean <strong>4 MUXs 4/1 de primer nivel</strong> controlados cada uno por las dos variables <strong>$(C, D)$</strong> (con dos líneas físicas de selección). Las salidas de estos cuatro bloques se dirigen a un <strong>MUX 4/1 final</strong> que selecciona la salida $F$ mediante las dos variables de selección <strong>$(A, B)$</strong>.
+                    </p>
+                </div>
+
+                <!-- SVG Diagram c) Tree of MUX 4/1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center overflow-x-auto">
+                    <svg viewBox="0 0 540 560" class="w-full max-w-lg h-auto">
+                        <!-- MUX 0 (top left) -->
+                        <rect x="90" y="20" width="80" height="95" rx="6" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="130" y="65" fill="#38bdf8" font-weight="bold" font-size="11" text-anchor="middle">4/1 (0)</text>
+                        <!-- MUX 0 inputs -->
+                        <text x="82" y="37" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="57" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="77" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <text x="82" y="97" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <!-- Controls for MUX 0 (2 lines: C and D) -->
+                        <line x1="118" y1="115" x2="118" y2="132" stroke="#f59e0b" stroke-width="1.5"/>
+                        <line x1="142" y1="115" x2="142" y2="132" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="118" y="142" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">C</text>
+                        <text x="142" y="142" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">D</text>
+
+                        <!-- MUX 1 -->
+                        <rect x="90" y="150" width="80" height="95" rx="6" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="130" y="195" fill="#38bdf8" font-weight="bold" font-size="11" text-anchor="middle">4/1 (1)</text>
+                        <!-- MUX 1 inputs -->
+                        <text x="82" y="167" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="187" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <text x="82" y="207" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <text x="82" y="227" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <!-- Controls for MUX 1 (2 lines: C and D) -->
+                        <line x1="118" y1="245" x2="118" y2="262" stroke="#f59e0b" stroke-width="1.5"/>
+                        <line x1="142" y1="245" x2="142" y2="262" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="118" y="272" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">C</text>
+                        <text x="142" y="272" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">D</text>
+
+                        <!-- MUX 2 -->
+                        <rect x="90" y="280" width="80" height="95" rx="6" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="130" y="325" fill="#38bdf8" font-weight="bold" font-size="11" text-anchor="middle">4/1 (2)</text>
+                        <!-- MUX 2 inputs -->
+                        <text x="82" y="297" fill="#c084fc" font-size="9" text-anchor="end">X</text>
+                        <text x="82" y="317" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="337" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="357" fill="#c084fc" font-size="9" text-anchor="end">X</text>
+                        <!-- Controls for MUX 2 (2 lines: C and D) -->
+                        <line x1="118" y1="375" x2="118" y2="392" stroke="#f59e0b" stroke-width="1.5"/>
+                        <line x1="142" y1="375" x2="142" y2="392" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="118" y="402" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">C</text>
+                        <text x="142" y="402" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">D</text>
+
+                        <!-- MUX 3 -->
+                        <rect x="90" y="410" width="80" height="95" rx="6" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="130" y="455" fill="#38bdf8" font-weight="bold" font-size="11" text-anchor="middle">4/1 (3)</text>
+                        <!-- MUX 3 inputs -->
+                        <text x="82" y="427" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <text x="82" y="447" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <text x="82" y="467" fill="#64748b" font-size="9" text-anchor="end">0</text>
+                        <text x="82" y="487" fill="#34d399" font-size="9" text-anchor="end">1</text>
+                        <!-- Controls for MUX 3 (2 lines: C and D) -->
+                        <line x1="118" y1="505" x2="118" y2="522" stroke="#f59e0b" stroke-width="1.5"/>
+                        <line x1="142" y1="505" x2="142" y2="522" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="118" y="532" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">C</text>
+                        <text x="142" y="532" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle">D</text>
+
+                        <!-- Final Stage MUX 4/1 -->
+                        <rect x="300" y="200" width="100" height="150" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
+                        <text x="350" y="275" fill="#34d399" font-weight="bold" font-size="16" text-anchor="middle">4 / 1</text>
+                        
+                        <!-- Connecting Interstage Lines -->
+                        <path d="M 170 65 H 240 V 220 H 300" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                        <path d="M 170 195 H 220 V 255 H 300" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                        <path d="M 170 325 H 220 V 295 H 300" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                        <path d="M 170 455 H 240 V 330 H 300" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+
+                        <!-- Output F -->
+                        <line x1="400" y1="275" x2="470" y2="275" stroke="#34d399" stroke-width="3"/>
+                        <circle cx="470" cy="275" r="5" fill="#34d399"/>
+                        <text x="485" y="280" fill="#34d399" font-weight="bold" font-size="16">F</text>
+
+                        <!-- Final MUX Controls A, B (2 distinct lines) -->
+                        <line x1="335" y1="350" x2="335" y2="385" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="365" y1="350" x2="365" y2="385" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="335" y="405" fill="#fef08a" font-weight="bold" font-size="14" text-anchor="middle">A</text>
+                        <text x="365" y="405" fill="#fef08a" font-weight="bold" font-size="14" text-anchor="middle">B</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: 2 MUX 4:1 + MUX 2:1 -->
+        <section id="content-mux2x4" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <h2 class="text-xl font-bold text-white">d) 2 MUX de 4C + 1 MUX de 2C</h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Tal como en el esquema d) de tus apuntes, se utilizan <strong>dos MUXs 4/1</strong> con las dos líneas de selección <strong>$(B, C)$</strong> cada uno:
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+                            <span class="text-xs font-bold text-sky-400 block">Bloque Superior MUX 4/1 (0) [Corresponde a $A=0$]:</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300 mt-2">
+                                <div>Entrada 0: <span class="text-emerald-400 font-bold">1</span></div>
+                                <div>Entrada 1: <span class="text-sky-400 font-bold">$D$</span></div>
+                                <div>Entrada 2: <span class="text-sky-400 font-bold">$\bar{D}$</span></div>
+                                <div>Entrada 3: <span class="text-slate-500 font-bold">0</span></div>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+                            <span class="text-xs font-bold text-amber-400 block">Bloque Inferior MUX 4/1 (1) [Corresponde a $A=1$]:</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300 mt-2">
+                                <div>Entrada 0: <span class="text-purple-400 font-bold">$D / 1$</span></div>
+                                <div>Entrada 1: <span class="text-purple-400 font-bold">$\bar{D} / 1$</span></div>
+                                <div>Entrada 2: <span class="text-sky-400 font-bold">$\bar{D}$</span></div>
+                                <div>Entrada 3: <span class="text-sky-400 font-bold">$D$</span></div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-400">
+                            La salida final <strong>$F$</strong> se selecciona mediante el <strong>MUX 2/1</strong> controlado por la variable <strong>$A$</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SVG Diagram 2 MUX 4/1 + MUX 2/1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center">
+                    <svg viewBox="0 0 540 450" class="w-full max-w-lg h-auto">
+                        <!-- Top MUX 4/1 (0) -->
+                        <rect x="140" y="30" width="130" height="150" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="205" y="60" fill="#38bdf8" font-weight="bold" font-size="14" text-anchor="middle">4 / 1 (0)</text>
+
+                        <!-- Top MUX inputs -->
+                        <g font-size="11" font-family="monospace" font-weight="bold">
+                            <text x="132" y="80" fill="#34d399" text-anchor="end">1</text>
+                            <text x="132" y="105" fill="#38bdf8" text-anchor="end">D</text>
+                            <text x="132" y="130" fill="#38bdf8" text-anchor="end">NOT D</text>
+                            <text x="132" y="155" fill="#64748b" text-anchor="end">0</text>
+                        </g>
+
+                        <!-- Control lines B, C for Top MUX 4/1 (0) -->
+                        <line x1="185" y1="180" x2="185" y2="205" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="225" y1="180" x2="225" y2="205" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="185" y="222" fill="#fef08a" font-weight="bold" font-size="13" text-anchor="middle">B</text>
+                        <text x="225" y="222" fill="#fef08a" font-weight="bold" font-size="13" text-anchor="middle">C</text>
+
+                        <!-- Bottom MUX 4/1 (1) -->
+                        <rect x="140" y="250" width="130" height="150" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="2"/>
+                        <text x="205" y="280" fill="#38bdf8" font-weight="bold" font-size="14" text-anchor="middle">4 / 1 (1)</text>
+
+                        <!-- Bottom MUX inputs -->
+                        <g font-size="11" font-family="monospace" font-weight="bold">
+                            <text x="132" y="300" fill="#c084fc" text-anchor="end">D / 1</text>
+                            <text x="132" y="325" fill="#c084fc" text-anchor="end">NOT D / 1</text>
+                            <text x="132" y="350" fill="#38bdf8" text-anchor="end">NOT D</text>
+                            <text x="132" y="375" fill="#38bdf8" text-anchor="end">D</text>
+                        </g>
+
+                        <!-- Control lines B, C for Bottom MUX 4/1 (1) -->
+                        <line x1="185" y1="400" x2="185" y2="425" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="225" y1="400" x2="225" y2="425" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="185" y="442" fill="#fef08a" font-weight="bold" font-size="13" text-anchor="middle">B</text>
+                        <text x="225" y="442" fill="#fef08a" font-weight="bold" font-size="13" text-anchor="middle">C</text>
+
+                        <!-- Final MUX 2/1 -->
+                        <rect x="370" y="145" width="95" height="130" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
+                        <text x="417" y="180" fill="#34d399" font-weight="bold" font-size="15" text-anchor="middle">2 / 1</text>
+                        <text x="380" y="200" fill="#38bdf8" font-weight="bold" font-size="11">0</text>
+                        <text x="380" y="245" fill="#38bdf8" font-weight="bold" font-size="11">1</text>
+
+                        <!-- Connecting Lines -->
+                        <path d="M 270 105 H 325 V 195 H 370" stroke="#38bdf8" stroke-width="2" fill="none"/>
+                        <path d="M 270 325 H 325 V 240 H 370" stroke="#38bdf8" stroke-width="2" fill="none"/>
+
+                        <!-- Final Output F -->
+                        <line x1="465" y1="210" x2="515" y2="210" stroke="#34d399" stroke-width="3"/>
+                        <circle cx="515" cy="210" r="4" fill="#34d399"/>
+                        <text x="523" y="214" fill="#34d399" font-weight="bold" font-size="15">F</text>
+
+                        <!-- Selection A for MUX 2/1 (Shortened line) -->
+                        <line x1="417" y1="275" x2="417" y2="310" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="417" y="330" fill="#fef08a" font-weight="bold" font-size="14" text-anchor="middle">A</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: SIMULADOR INTERACTIVO -->
+        <section id="content-simulador" class="tab-content space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-white mb-2">Simulador Lógico en Tiempo Real</h2>
+                <p class="text-sm text-slate-400 mb-6">Cambia los interruptores de las entradas $A, B, C, D$ para comprobar el valor resultante de la función $F$.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- Controls -->
+                    <div class="space-y-4 bg-slate-950 p-6 rounded-xl border border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm font-semibold text-slate-300">Entrada A</span>
+                            <button onclick="toggleInput('A')" id="btn-A" class="w-16 h-8 rounded-full bg-slate-800 text-slate-400 font-bold font-mono transition">0</button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm font-semibold text-slate-300">Entrada B</span>
+                            <button onclick="toggleInput('B')" id="btn-B" class="w-16 h-8 rounded-full bg-slate-800 text-slate-400 font-bold font-mono transition">0</button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm font-semibold text-slate-300">Entrada C</span>
+                            <button onclick="toggleInput('C')" id="btn-C" class="w-16 h-8 rounded-full bg-slate-800 text-slate-400 font-bold font-mono transition">0</button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm font-semibold text-slate-300">Entrada D</span>
+                            <button onclick="toggleInput('D')" id="btn-D" class="w-16 h-8 rounded-full bg-slate-800 text-slate-400 font-bold font-mono transition">0</button>
+                        </div>
+                    </div>
+
+                    <!-- Output Box -->
+                    <div class="flex flex-col items-center justify-center p-8 bg-slate-950 rounded-xl border border-slate-800 space-y-4 text-center">
+                        <span class="text-xs uppercase tracking-widest font-semibold text-slate-400">Salida F(A,B,C,D)</span>
+                        <div id="sim-output" class="text-5xl font-mono font-extrabold text-emerald-400">1</div>
+                        <span id="sim-minterm" class="text-xs font-mono text-sky-400">Mintérmino: m0 (0000)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        <p>Sistemas Combinacionales con Multiplexores &copy; 2026 - Guíadidáctica Interactiva</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        const truthTableData = [
+            { m: 0, a: 0, b: 0, c: 0, d: 0, f: "1" },
+            { m: 1, a: 0, b: 0, c: 0, d: 1, f: "1" },
+            { m: 2, a: 0, b: 0, c: 1, d: 0, f: "0" },
+            { m: 3, a: 0, b: 0, c: 1, d: 1, f: "1" },
+            { m: 4, a: 0, b: 1, c: 0, d: 0, f: "1" },
+            { m: 5, a: 0, b: 1, c: 0, d: 1, f: "0" },
+            { m: 6, a: 0, b: 1, c: 1, d: 0, f: "0" },
+            { m: 7, a: 0, b: 1, c: 1, d: 1, f: "0" },
+            { m: 8, a: 1, b: 0, c: 0, d: 0, f: "X" },
+            { m: 9, a: 1, b: 0, c: 0, d: 1, f: "1" },
+            { m: 10, a: 1, b: 0, c: 1, d: 0, f: "1" },
+            { m: 11, a: 1, b: 0, c: 1, d: 1, f: "X" },
+            { m: 12, a: 1, b: 1, c: 0, d: 0, f: "1" },
+            { m: 13, a: 1, b: 1, c: 0, d: 1, f: "0" },
+            { m: 14, a: 1, b: 1, c: 1, d: 0, f: "0" },
+            { m: 15, a: 1, b: 1, c: 1, d: 1, f: "1" }
+        ];
+
+        let simState = { A: 0, B: 0, C: 0, D: 0 };
+
+        function initTruthTable() {
+            const body = document.getElementById('truth-table-body');
+            body.innerHTML = '';
+            truthTableData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/60";
+                
+                let outColor = "text-slate-400";
+                if (row.f === "1") outColor = "text-emerald-400 font-bold";
+                else if (row.f === "X") outColor = "text-amber-400 font-bold";
+
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-500">m${row.m}</td>
+                    <td class="p-3">${row.a}</td>
+                    <td class="p-3">${row.b}</td>
+                    <td class="p-3">${row.c}</td>
+                    <td class="p-3">${row.d}</td>
+                    <td class="p-3 ${outColor}">${row.f}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`content-${tabId}`).classList.add('active');
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body);
+            }
+        }
+
+        function toggleInput(varName) {
+            simState[varName] = simState[varName] === 0 ? 1 : 0;
+            const btn = document.getElementById(`btn-${varName}`);
+            
+            if (simState[varName] === 1) {
+                btn.classList.remove('bg-slate-800', 'text-slate-400');
+                btn.classList.add('bg-emerald-500', 'text-slate-950');
+                btn.innerText = '1';
+            } else {
+                btn.classList.remove('bg-emerald-500', 'text-slate-950');
+                btn.classList.add('bg-slate-800', 'text-slate-400');
+                btn.innerText = '0';
+            }
+
+            updateSimulator();
+        }
+
+        function updateSimulator() {
+            const mintermIndex = (simState.A << 3) | (simState.B << 2) | (simState.C << 1) | simState.D;
+            const entry = truthTableData[mintermIndex];
+
+            const outputEl = document.getElementById('sim-output');
+            const mintermEl = document.getElementById('sim-minterm');
+
+            outputEl.innerText = entry.f;
+            if (entry.f === "1") {
+                outputEl.className = "text-5xl font-mono font-extrabold text-emerald-400";
+            } else if (entry.f === "0") {
+                outputEl.className = "text-5xl font-mono font-extrabold text-slate-500";
+            } else {
+                outputEl.className = "text-5xl font-mono font-extrabold text-amber-400";
+            }
+
+            mintermEl.innerText = `Mintérmino: m${mintermIndex} (${simState.A}${simState.B}${simState.C}${simState.D})`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTruthTable();
+            updateSimulator();
+        });
+    </script>
+</body>
+</html>
