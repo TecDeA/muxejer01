@@ -729,14 +729,37 @@
             });
         }
 
+        // ====== Opciones globales de KaTeX (auto-render) ======
+        // KaTeX NO reconoce los delimitadores $...$ por defecto (solo $$, \[, \).
+        // Hay que declararlos explicitamente. Sin esta opcion, todas las
+        // formulas $A$, $B$, $I_0$, $I_{15}$, etc. quedarian como texto literal.
+        const KATEX_OPTIONS = {
+            delimiters: [
+                { left: '$$', right: '$$', display: true },
+                { left: '\\[', right: '\\]', display: true },
+                { left: '\\(', right: '\\)', display: false },
+                { left: '$',  right: '$',  display: false }
+            ],
+            // Ignorar el interior de estos elementos (no buscar formulas ahi):
+            // 'svg' evita que KaTeX toque el texto de los diagramas MUX,
+            // 'code'/'pre' evita romper bloques de codigo, etc.
+            ignoredTags: ['script', 'noscript', 'style', 'textarea', 'option',
+                          'pre', 'code', 'svg', 'math'],
+            ignoredClasses: ['no-math'],
+            // No lanzar excepciones por formulas con errores de sintaxis:
+            // solo las deja como texto original y registra un warning.
+            throwOnError: false,
+            errorCallback: (err) => console.warn('KaTeX parse:', err.message || err)
+        };
+
         // Helper de renderizado KaTeX. Renderiza las formulas $...$ dentro
         // del elemento indicado (o todo el body por defecto). Es seguro
-        // llamarlo varias veces: las formulas ya renderizadas no se
-        // reprocesan porque KaTeX sustituye el texto $...$ por HTML.
+        // llamarlo varias veces: KaTeX marca el contenido ya renderizado y
+        // no lo reprocesa.
         function renderMath(target) {
             try {
                 if (window.renderMathInElement) {
-                    renderMathInElement(target || document.body);
+                    renderMathInElement(target || document.body, KATEX_OPTIONS);
                 }
             } catch (e) { console.warn('KaTeX render error:', e); }
         }
@@ -797,13 +820,18 @@
             // (puede dispararse antes de que el script defer se ejecute,
             //  especialmente al servirse desde el Service Worker cache).
             // Solucion: polling corto hasta que renderMathInElement exista,
-            // entonces renderizamos todo el body una sola vez.
+            // entonces renderizamos todo el body una sola vez con las opciones
+            // que activan los delimitadores $...$.
             let _mathTries = 0;
             function tryRenderMath() {
                 if (window.renderMathInElement) {
-                    renderMathInElement(document.body);
-                } else if (_mathTries++ < 60) { // ~3 s max
+                    try {
+                        renderMathInElement(document.body, KATEX_OPTIONS);
+                    } catch (e) { console.warn('KaTeX render error:', e); }
+                } else if (_mathTries++ < 120) { // ~6 s max (CDN lento)
                     setTimeout(tryRenderMath, 50);
+                } else {
+                    console.warn('KaTeX no disponible tras 6s; fórmulas $...$ pueden verse sin renderizar.');
                 }
             }
             tryRenderMath();
